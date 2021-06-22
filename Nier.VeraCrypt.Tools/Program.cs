@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Diagnostics.Tracing;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Unicode;
 
 namespace Nier.VeraCrypt.Tools
 {
@@ -15,8 +19,20 @@ namespace Nier.VeraCrypt.Tools
             Array.Copy(fileBytes, salt, salt.Length);
             Rfc2898DeriveBytes rfc2898DeriveBytes =
                 new Rfc2898DeriveBytes(password, salt, 500000, HashAlgorithmName.SHA512);
-            byte[] keyBytes = rfc2898DeriveBytes.GetBytes(512);
-            Console.WriteLine(string.Join(',', keyBytes));
+            byte[] keyBytes = rfc2898DeriveBytes.GetBytes(64);
+            Console.WriteLine(Convert.ToHexString(keyBytes));
+            var keySize = keyBytes.Length / 2;
+            var key1 = new AesCipher(keyBytes[..keySize]);
+            var key2 = new AesCipher(keyBytes[keySize..]);
+            var xts = new XTS(key1, key2);
+            var cipherBytes = fileBytes[64..512];
+            var plainText = new byte[cipherBytes.Length];
+            xts.Decrypt(cipherBytes, plainText, 0);
+            Console.WriteLine(Convert.ToHexString(plainText)); 
+            
+            Console.WriteLine(Encoding.ASCII.GetString(plainText));
+            // VERA 56455241 Console.WriteLine(Convert.ToHexString(Encoding.ASCII.GetBytes("VERA")));
+            Console.WriteLine(Encoding.ASCII.GetString(plainText).Contains("VERA"));
         }
         
         // encryption algorithm aes
