@@ -27,10 +27,13 @@ namespace Nier.VeraCrypt.Tools
 
             VeraCryptVolume v = new();
             Console.WriteLine("magic "+ v.ReadMagic(plainText));
-            Console.WriteLine("header version " + v.ReadHeaderVersion(plainText));
-            Console.WriteLine("Version " + v.ReadVersion(plainText));
+            Console.WriteLine("header version " + v.VolumeHeaderVersion(plainText));
+            Console.WriteLine("min program Version " + v.MinProgramVersion(plainText));
             Console.WriteLine("volume size " + v.ReadVolumeSize(plainText));
-
+            Console.WriteLine("keys " + Convert.ToHexString(v.ReadKeys(plainText)));
+            Console.WriteLine("master key scope " + v.ReadMasterKeyScopeOffset(plainText));
+            Console.WriteLine("sector size " + v.ReadSectorSize(plainText));
+            Console.WriteLine("master key encryption size " + v.ReadMasterKeyEncryptionSize(plainText));
         }
 
         // encryption algorithm aes

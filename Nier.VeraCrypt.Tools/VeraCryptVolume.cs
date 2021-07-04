@@ -15,8 +15,8 @@ namespace Nier.VeraCrypt.Tools
     public class VeraCryptVolume
     {
         private static readonly VolumeField s_magic = new VolumeField {Offset = 64, Size = 4};
-        private static readonly VolumeField s_headerVersion = new VolumeField {Offset = 68, Size = 2};
-        private static readonly VolumeField s_version = new VolumeField {Offset = 70, Size = 2};
+        private static readonly VolumeField s_volumeHeaderVersion = new VolumeField {Offset = 68, Size = 2};
+        private static readonly VolumeField s_minProgramVersion = new VolumeField {Offset = 70, Size = 2};
         private static readonly VolumeField s_volumeSize = new VolumeField {Offset = 100, Size = 8};
         private static readonly VolumeField s_masterKeyScopeOffset = new VolumeField {Offset = 108, Size = 8};
         private static readonly VolumeField s_masterKeyEncryptionSize = new VolumeField {Offset = 116, Size = 8};
@@ -29,14 +29,14 @@ namespace Nier.VeraCrypt.Tools
             return ReadAscii(bytes, s_magic);
         }
 
-        public short ReadHeaderVersion(Span<byte> bytes)
+        public short VolumeHeaderVersion(Span<byte> bytes)
         {
-            return ReadShort(bytes, s_headerVersion);
+            return ReadShort(bytes, s_volumeHeaderVersion);
         }
 
-        public short ReadVersion(Span<byte> bytes)
+        public short MinProgramVersion(Span<byte> bytes)
         {
-            return ReadShort(bytes, s_version);
+            return ReadShort(bytes, s_minProgramVersion);
         }
 
         public long ReadVolumeSize(Span<byte> bytes)
@@ -44,9 +44,9 @@ namespace Nier.VeraCrypt.Tools
             return ReadLong(bytes, s_volumeSize);
         }
 
-        public long ReadSectorSize(Span<byte> bytes)
+        public int ReadSectorSize(Span<byte> bytes)
         {
-            return ReadLong(bytes, s_sectorSize);
+            return ReadInt(bytes, s_sectorSize);
         }
 
         public long ReadMasterKeyScopeOffset(Span<byte> bytes)
@@ -73,6 +73,12 @@ namespace Nier.VeraCrypt.Tools
         {
             Span<byte> fieldBytes = ReadBytes(bytes, volumeField);
             return s_bigEndianBitConverter.ToInt64(fieldBytes);
+        }
+
+        private int ReadInt(Span<byte> bytes, VolumeField volumeField)
+        {
+            Span<byte> fieldBytes = ReadBytes(bytes, volumeField);
+            return s_bigEndianBitConverter.ToInt32(fieldBytes);
         }
 
         private short ReadShort(Span<byte> bytes, VolumeField volumeField)
