@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 
 namespace Nier.VeraCrypt.Tools
@@ -16,7 +15,7 @@ namespace Nier.VeraCrypt.Tools
             Console.WriteLine("header version " + v.VolumeHeaderVersion);
             Console.WriteLine("min program Version " + v.MinProgramVersion);
             Console.WriteLine("volume size " + v.VolumeSize);
-            Console.WriteLine("master key scope " + v.MasterKeyScopeOffset);
+            Console.WriteLine("master key scope offset " + v.MasterKeyScopeOffset);
             Console.WriteLine("sector size " + v.SectorSize);
             Console.WriteLine("master key encryption size " + v.MasterKeyEncryptionSize);
             var databytes = new Span<byte>(new byte[v.MasterKeyEncryptionSize]);

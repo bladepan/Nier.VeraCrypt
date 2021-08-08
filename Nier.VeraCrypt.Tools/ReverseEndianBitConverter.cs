@@ -17,6 +17,12 @@ namespace Nier.VeraCrypt.Tools
             return BitConverter.ToInt32(reversed);
         }
 
+        public uint ToUInt32(Span<byte> value)
+        {
+            byte[] reversed = GetReversedCopy(value);
+            return BitConverter.ToUInt32(reversed);
+        }
+
         public long ToInt64(Span<byte> value)
         {
             byte[] reversed = GetReversedCopy(value);
