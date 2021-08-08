@@ -8,5 +8,7 @@ namespace Nier.VeraCrypt.Tools
         int ToInt32(Span<byte> value);
         public uint ToUInt32(Span<byte> value);
         long ToInt64(Span<byte> value);
+
+        ulong ToUInt64(Span<byte> value);
     }
 }

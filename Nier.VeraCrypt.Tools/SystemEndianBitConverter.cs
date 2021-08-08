@@ -10,5 +10,6 @@ namespace Nier.VeraCrypt.Tools
         public uint ToUInt32(Span<byte> value) => BitConverter.ToUInt32(value);
 
         public long ToInt64(Span<byte> value) => BitConverter.ToInt64(value);
+        public ulong ToUInt64(Span<byte> value) => BitConverter.ToUInt64(value);
     }
 }
