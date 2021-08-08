@@ -1,6 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Security.Cryptography;
+using System.Text;
 
 namespace Nier.VeraCrypt.Tools
 {
@@ -10,27 +9,41 @@ namespace Nier.VeraCrypt.Tools
         {
             var password = "test1";
             var filePath = "/home/pan/Documents/test.disk";
-            var fileBytes = File.ReadAllBytes(filePath);
-            var salt = new byte[64];
-            Array.Copy(fileBytes, salt, salt.Length);
-            var rfc2898DeriveBytes =
-                new Rfc2898DeriveBytes(password, salt, 500000, HashAlgorithmName.SHA512);
-            byte[] keyBytes = rfc2898DeriveBytes.GetBytes(64);
-            Console.WriteLine(Convert.ToHexString(keyBytes));
-            var keySize = keyBytes.Length / 2;
-            var key1 = new AesCipher(keyBytes[..keySize]);
-            var key2 = new AesCipher(keyBytes[keySize..]);
-            var xts = new XTS(key1, key2);
-            var cipherBytes = fileBytes[64..131072];
-            var plainText = new byte[cipherBytes.Length];
-            xts.Decrypt(cipherBytes, plainText, 0);
 
-            VeraCryptVolume v = new();
-            Console.WriteLine("magic "+ v.ReadMagic(plainText));
-            Console.WriteLine("header version " + v.ReadHeaderVersion(plainText));
-            Console.WriteLine("Version " + v.ReadVersion(plainText));
-            Console.WriteLine("volume size " + v.ReadVolumeSize(plainText));
+            VeraCryptVolume v = new(filePath, password);
+            Console.WriteLine("magic "+ v.Magic);
+            Console.WriteLine("header version " + v.VolumeHeaderVersion);
+            Console.WriteLine("min program Version " + v.MinProgramVersion);
+            Console.WriteLine("volume size " + v.VolumeSize);
+            Console.WriteLine("master key scope offset " + v.MasterKeyScopeOffset);
+            Console.WriteLine("sector size " + v.SectorSize);
+            Console.WriteLine("master key encryption size " + v.MasterKeyEncryptionSize);
+            var databytes = new Span<byte>(new byte[v.MasterKeyEncryptionSize]);
+            v.ReadAllDataBytes(databytes);
+            // File.WriteAllBytes("/home/pan/Documents/dump.bin", databytes.ToArray());
+            var offset = 0;
+            int batchSize = 1024;
+            while (offset < databytes.Length)
+            {
+                Span<byte> dataSlice;
+                if (offset + batchSize > databytes.Length)
+                {
+                    dataSlice = databytes.Slice(offset);
+                }
+                else
+                {
+                    dataSlice = databytes.Slice(offset, batchSize);
+                }
 
+                string str = Encoding.UTF8.GetString(dataSlice);
+                if (str.Contains("Hello"))
+                {
+                    Console.WriteLine(offset);
+                    Console.WriteLine(str);
+                }
+
+                offset += batchSize;
+            }
         }
 
         // encryption algorithm aes
@@ -43,7 +56,6 @@ namespace Nier.VeraCrypt.Tools
         // xts mode The size of each data unit is always 512 bytes (regardless of the sector size).
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
             var p = new Program();
             p.Read();
         }
