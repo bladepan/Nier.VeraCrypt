@@ -1,49 +1,38 @@
 ﻿using System;
-using System.Text;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Nier.VeraCrypt.Tools
 {
     class Program
     {
-        public void Read()
+        public void Run(CmdLineOptions options, IConsoleWrapper console)
         {
-            var password = "test1";
-            var filePath = "/home/pan/Documents/test.disk";
-
+            var password = options.Password;
+            var filePath = options.InputFile.FullName;
+            var outputFileStream = new FileStream(options.OutputFile.FullName, FileMode.Create, FileAccess.Write);
+            console.Verbose($"Input file {options.InputFile}, output file {options.OutputFile}");
             VeraCryptVolume v = new(filePath, password);
-            Console.WriteLine("magic "+ v.Magic);
-            Console.WriteLine("header version " + v.VolumeHeaderVersion);
-            Console.WriteLine("min program Version " + v.MinProgramVersion);
-            Console.WriteLine("volume size " + v.VolumeSize);
-            Console.WriteLine("master key scope offset " + v.MasterKeyScopeOffset);
-            Console.WriteLine("sector size " + v.SectorSize);
-            Console.WriteLine("master key encryption size " + v.MasterKeyEncryptionSize);
-            var databytes = new Span<byte>(new byte[v.MasterKeyEncryptionSize]);
-            v.ReadAllDataBytes(databytes);
-            // File.WriteAllBytes("/home/pan/Documents/dump.bin", databytes.ToArray());
-            var offset = 0;
-            int batchSize = 1024;
-            while (offset < databytes.Length)
-            {
-                Span<byte> dataSlice;
-                if (offset + batchSize > databytes.Length)
+            console.Verbose("magic " + v.Magic);
+            console.Verbose("header version " + v.VolumeHeaderVersion);
+            console.Verbose("min program Version " + v.MinProgramVersion);
+            console.Verbose("volume size " + v.VolumeSize);
+            console.Verbose("master key scope offset " + v.MasterKeyScopeOffset);
+            console.Verbose("sector size " + v.SectorSize);
+            console.Verbose("master key encryption size " + v.MasterKeyEncryptionSize);
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            v.ReadDataBytes(outputFileStream, 0,
+                v.MasterKeyEncryptionSize, bytesRead =>
                 {
-                    dataSlice = databytes.Slice(offset);
-                }
-                else
-                {
-                    dataSlice = databytes.Slice(offset, batchSize);
-                }
-
-                string str = Encoding.UTF8.GetString(dataSlice);
-                if (str.Contains("Hello"))
-                {
-                    Console.WriteLine(offset);
-                    Console.WriteLine(str);
-                }
-
-                offset += batchSize;
-            }
+                    if (bytesRead == 0 || stopwatch.Elapsed >= TimeSpan.FromSeconds(2) || bytesRead == v.MasterKeyEncryptionSize)
+                    {
+                        stopwatch.Restart();
+                        console.Verbose($"Read {bytesRead} bytes.");
+                    }
+                });
         }
 
         // encryption algorithm aes
@@ -54,10 +43,23 @@ namespace Nier.VeraCrypt.Tools
 
         // aes, block size 16, key size 32
         // xts mode The size of each data unit is always 512 bytes (regardless of the sector size).
-        static void Main(string[] args)
+        static Task<int> Main(string[] args)
         {
-            var p = new Program();
-            p.Read();
+            var cmd = new RootCommand("decrypt and dump the volume data to output file")
+            {
+                new Option<string>("--password", "volume password"),
+                new Option<FileInfo>("--inputFile", "input file") {IsRequired = true}.ExistingOnly(),
+                new Option<FileInfo>("--outputFile", "output file") {IsRequired = true},
+                new Option<bool>("--verbose", "enable more logging")
+            };
+            cmd.Handler = CommandHandler.Create((CmdLineOptions options, IConsole console) =>
+            {
+                var consoleWrapper = new CommandLineConsoleWrapper(console, options.Verbose);
+                var p = new Program();
+                p.Run(options, consoleWrapper);
+            });
+
+            return cmd.InvokeAsync(args);
         }
     }
 }

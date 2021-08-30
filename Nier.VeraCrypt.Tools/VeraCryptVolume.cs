@@ -117,6 +117,7 @@ namespace Nier.VeraCrypt.Tools
             {
                 throw new Exception("Unsupported volume format v1");
             }
+
             if (hiddenVolumeSize != 0)
             {
                 throw new Exception("does not support hidden volume. hidden volume size " + hiddenVolumeSize);
@@ -127,20 +128,46 @@ namespace Nier.VeraCrypt.Tools
             _dataCryptor = new XTS(dataKey1, dataKey2);
         }
 
-        public void ReadAllDataBytes(Span<byte> buffer)
+        public void ReadDataBytes(Stream output, ulong dataOffset, ulong length, Action<ulong> progressCallback)
         {
-            _fileStream.Seek((long)MasterKeyScopeOffset, SeekOrigin.Begin);
+            if (dataOffset % SectorSize != 0)
+            {
+                throw new ArgumentException("offset should align with sector size", nameof(dataOffset));
+            }
+
+            if (length % SectorSize != 0)
+            {
+                throw new ArgumentException("length should align with sector size", nameof(length));
+            }
+
+            if (dataOffset > MasterKeyEncryptionSize)
+            {
+                throw new ArgumentException("offset exceeds limit", nameof(dataOffset));
+            }
+
+            if (dataOffset + length > MasterKeyEncryptionSize)
+            {
+                throw new ArgumentException("length exceeds limit", nameof(length));
+            }
+
+            ulong volumeOffset = MasterKeyScopeOffset + dataOffset;
+            _fileStream.Seek((long)volumeOffset, SeekOrigin.Begin);
             // read sector by sector
-            ulong sectorNum = MasterKeyScopeOffset / SectorSize;
-            int offset = 0;
+            ulong sectorNum = volumeOffset / SectorSize;
             Span<byte> sectorBuffer = new(new byte[SectorSize]);
-            while (offset < buffer.Length)
+            Span<byte> buffer = new(new byte[SectorSize]);
+            ulong dataRead = 0;
+            progressCallback(dataRead);
+            while (dataRead < length)
             {
                 ReadAll(_fileStream, sectorBuffer);
-                _dataCryptor.Decrypt(sectorBuffer, buffer.Slice(offset, (int)SectorSize), sectorNum);
+                _dataCryptor.Decrypt(sectorBuffer, buffer, sectorNum);
                 sectorNum++;
-                offset += (int)SectorSize;
+                dataRead += SectorSize;
+                progressCallback(dataRead);
+                output.Write(buffer);
             }
+            output.Flush();
         }
 
         private void ReadAll(FileStream fileStream, Span<byte> buffer)
@@ -163,6 +190,7 @@ namespace Nier.VeraCrypt.Tools
             Span<byte> fieldBytes = ReadBytes(bytes, volumeField);
             return s_bigEndianBitConverter.ToUInt64(fieldBytes);
         }
+
         private uint ReadUInt(Span<byte> bytes, VolumeField volumeField)
         {
             Span<byte> fieldBytes = ReadBytes(bytes, volumeField);
