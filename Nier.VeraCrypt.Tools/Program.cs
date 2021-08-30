@@ -50,7 +50,7 @@ namespace Nier.VeraCrypt.Tools
                 new Option<string>("--password", "volume password"),
                 new Option<FileInfo>("--inputFile", "input file") {IsRequired = true}.ExistingOnly(),
                 new Option<FileInfo>("--outputFile", "output file") {IsRequired = true},
-                new Option<bool>("--verbose")
+                new Option<bool>("--verbose", "enable more logging")
             };
             cmd.Handler = CommandHandler.Create((CmdLineOptions options, IConsole console) =>
             {
