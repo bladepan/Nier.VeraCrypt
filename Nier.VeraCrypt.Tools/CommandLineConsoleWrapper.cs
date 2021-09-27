@@ -18,7 +18,7 @@ namespace Nier.VeraCrypt.Tools
         {
             if (_verbose)
             {
-                _console.Out.WriteLine($"{DateTime.Now:O} {msg}");
+                _console.Out.WriteLine($"{DateTimeOffset.Now:O} {msg}");
             }
         }
     }

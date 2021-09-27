@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nier.VeraCrypt.Tools", "Nie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nier.VeraCrypt.Tools.Tests", "Nier.VeraCrypt.Tools.Tests\Nier.VeraCrypt.Tools.Tests.csproj", "{0BCBD368-E6E0-4C3B-9286-33E772D20696}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nier.FileTools.Backup", "Nier.FileTools.Backup\Nier.FileTools.Backup.csproj", "{7E3E0188-3A26-46F2-B425-540F4B2BBA5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{0BCBD368-E6E0-4C3B-9286-33E772D20696}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BCBD368-E6E0-4C3B-9286-33E772D20696}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BCBD368-E6E0-4C3B-9286-33E772D20696}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E3E0188-3A26-46F2-B425-540F4B2BBA5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E3E0188-3A26-46F2-B425-540F4B2BBA5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E3E0188-3A26-46F2-B425-540F4B2BBA5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E3E0188-3A26-46F2-B425-540F4B2BBA5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
