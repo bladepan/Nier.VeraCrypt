@@ -25,7 +25,7 @@ dotnet run -- --password test1 --inputFile ~/Documents/1m.disk --outputFile ~/Do
 ```shell
 dotnet build
 
-cd Nier.VeraCrypt.Tools/bin/Debug/net5.0
+cd Nier.VeraCrypt.Tools/bin/Debug/net6.0
 
 # help
 ./Nier.VeraCrypt.Tools --help

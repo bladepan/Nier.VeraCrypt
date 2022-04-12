@@ -7,11 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
         <PackageReference Include="MSTest.TestAdapter" Version="2.2.9" />
         <PackageReference Include="MSTest.TestFramework" Version="2.2.9" />
@@ -22,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Nier.VeraCrypt.Tools\Nier.VeraCrypt.Tools.csproj" />
+      <ProjectReference Include="..\Nier.FileTools.Backup\Nier.FileTools.Backup.csproj" />
     </ItemGroup>
 
 </Project>
