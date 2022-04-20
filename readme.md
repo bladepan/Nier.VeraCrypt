@@ -16,7 +16,10 @@ cd Nier.VeraCrypt.Tools
 dotnet run -- --help
 
 # sample
+# dump decrypted volume to outputFile
 dotnet run -- --password test1 --inputFile ~/Documents/1m.disk --outputFile ~/Documents/1m-out.disk
+# verify volume header with password
+dotnet run -- --mode VerifyHeader --password test1 --inputFile ~/Documents/1m.disk --verbose
 ```
 
 
