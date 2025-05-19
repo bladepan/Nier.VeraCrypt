@@ -9,22 +9,21 @@ namespace Nier.VeraCrypt.Tools
 {
     class Program
     {
-        private void Run(CmdLineOptions options, IConsoleWrapper console)
+        private int Run(CmdLineOptions options, IConsoleWrapper console)
         {
             switch (options.Mode)
             {
                 case Mode.Default:
-                    ExecDefaultMode(options, console);
-                    break;
+                    return ExecDefaultMode(options, console);
                 case Mode.VerifyHeader:
-                    ExecVerifyVolumeMode(options, console);
-                    break;
+                    return ExecVerifyVolumeMode(options, console);
                 default:
-                    throw new ArgumentException($"Invalid mode {options.Mode}");
+                    console.Error($"Invalid mode {options.Mode}");
+                    return 1;
             }
         }
 
-        private void ExecDefaultMode(CmdLineOptions options, IConsoleWrapper console)
+        private int ExecDefaultMode(CmdLineOptions options, IConsoleWrapper console)
         {
             var password = options.Password;
             var filePath = options.InputFile.FullName;
@@ -48,6 +47,7 @@ namespace Nier.VeraCrypt.Tools
                         console.Verbose($"Read {bytesRead} bytes.");
                     }
                 });
+            return 0;
         }
 
         private static void PrintVolumeHeaderInfo(VeraCryptVolume v, IConsoleWrapper console)
@@ -61,13 +61,22 @@ namespace Nier.VeraCrypt.Tools
             console.Verbose("master key encryption size " + v.MasterKeyEncryptionSize);
         }
 
-        private void ExecVerifyVolumeMode(CmdLineOptions options, IConsoleWrapper console)
+        private int ExecVerifyVolumeMode(CmdLineOptions options, IConsoleWrapper console)
         {
             var password = options.Password;
             var filePath = options.InputFile.FullName;
             console.Verbose($"Verify {filePath}");
-            VeraCryptVolume v = new(filePath, password);
-            PrintVolumeHeaderInfo(v, console);
+            try
+            {
+                VeraCryptVolume v = new(filePath, password);
+                PrintVolumeHeaderInfo(v, console);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                console.Error($"Failed to verify volume: {ex.Message}");
+                return 1;
+            }
         }
 
         // encryption algorithm aes
@@ -93,7 +102,7 @@ namespace Nier.VeraCrypt.Tools
             {
                 var consoleWrapper = new CommandLineConsoleWrapper(console, options.Verbose);
                 var p = new Program();
-                p.Run(options, consoleWrapper);
+                return p.Run(options, consoleWrapper);
             });
 
             return cmd.InvokeAsync(args);

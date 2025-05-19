@@ -28,7 +28,7 @@ dotnet run -- --mode VerifyHeader --password test1 --inputFile ~/Documents/1m.di
 ```shell
 dotnet build
 
-cd Nier.VeraCrypt.Tools/bin/Debug/net6.0
+cd Nier.VeraCrypt.Tools/bin/Debug/net8.0
 
 # help
 ./Nier.VeraCrypt.Tools --help

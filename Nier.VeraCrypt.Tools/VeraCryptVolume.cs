@@ -76,7 +76,8 @@ namespace Nier.VeraCrypt.Tools
             Magic = ReadAscii(decryptedHeaderBytes, s_magic);
             if (Magic != "VERA")
             {
-                throw new Exception("Invalid magic field " + Magic);
+                var magicHex = BitConverter.ToString(Encoding.ASCII.GetBytes(Magic)).Replace("-", " ");
+                throw new Exception($"Invalid magic field '{Magic}' (hex: {magicHex})");
             }
 
             uint decryptedDataKeysChecksum = ReadUInt(decryptedHeaderBytes, s_keyChecksum);

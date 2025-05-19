@@ -4,7 +4,7 @@ using System.CommandLine.IO;
 
 namespace Nier.VeraCrypt.Tools
 {
-    public class CommandLineConsoleWrapper: IConsoleWrapper
+    public class CommandLineConsoleWrapper : IConsoleWrapper
     {
         private readonly IConsole _console;
         private readonly bool _verbose;
@@ -20,6 +20,11 @@ namespace Nier.VeraCrypt.Tools
             {
                 _console.Out.WriteLine($"{DateTimeOffset.Now:O} {msg}");
             }
+        }
+        
+        public void Error(string msg)
+        {
+            _console.Error.WriteLine($"{DateTimeOffset.Now:O} {msg}");
         }
     }
 }
